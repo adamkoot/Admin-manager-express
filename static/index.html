@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <style>
+      .login {
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        padding: 10px;
+        justify-content: center;
+      }
+
+      .container {
+        display: flex;
+        padding: 10px;
+      }
+
+      .row {
+        padding: 10px;
+      }
+
+      select {
+        width: 250px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="login">
+        <div class="row">
+          <input type="text" placeholder="nick" id="nick" />
+        </div>
+        <div class="row">
+          <input type="password" placeholder="password" id="password" />
+        </div>
+        <div class="row">
+          <button onclick="addUser(), getIDs(), getAllData()">
+            + dodaj usera
+          </button>
+        </div>
+        <div class="row">
+          <button onclick="getIDs(), getAllData()">➜ odśwież</button>
+        </div>
+      </div>
+      <div class="show">
+        <div class="selekcik">
+          <select name="id" id="selekcik"></select>
+        </div>
+        <div class="row">
+          <button onclick="deleteUser(), getIDs(), getAllData()">
+            - usuń wybranego usera
+          </button>
+        </div>
+        <div class="row">
+          <button onclick="updatePassword(), getAllData()">
+            zaktualizuj hasło usera
+          </button>
+        </div>
+        <div class="row">
+          <textarea id="story" name="story" rows="10" cols="70"></textarea>
+        </div>
+      </div>
+    </div>
+    <script>
+      function deleteUser() {
+        let x = document.getElementById("selekcik").value;
+        let y = { x };
+        fetch("/deleteUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(y),
+        });
+      }
+      function updatePassword() {
+        let passwd = document.getElementById("password").value;
+        let x = document.getElementById("selekcik").value;
+
+        let data = { passwd, x };
+        fetch("/updatePassword", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+      function getAllData() {
+        $.ajax({
+          url: "/getAllData",
+          contentType: "application/json",
+          type: "POST",
+          success: function (data) {
+            var str = JSON.stringify(data, undefined, 4);
+            // display pretty printed object in text area:
+            document.getElementById("story").innerHTML = str;
+          },
+          error: function (xhr, status, error) {
+            console.log("Error: " + error.message);
+          },
+        });
+      }
+
+      function getIDs() {
+        $.ajax({
+          url: "/getIDs",
+          contentType: "application/json",
+          type: "POST",
+          success: function (data) {
+            //var dane = JSON.parse(data);
+            //console.log(typeof data[0]);
+
+            select = document.getElementById("selekcik");
+            select.innerHTML = "";
+            for (let i = 0; i < data.length; i++) {
+              var opt = document.createElement("option");
+              opt.value = data[i];
+              opt.innerHTML = data[i];
+              select.appendChild(opt);
+            }
+            //console.log(obj);
+            console.log("udalo sie");
+          },
+          error: function (xhr, status, error) {
+            console.log("Error: " + error.message);
+          },
+        });
+      }
+
+      function addUser() {
+        nick = document.getElementById("nick").value;
+        passwd = document.getElementById("password").value;
+
+        let data = { nick, passwd };
+        fetch("/addUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+
+      console.log(nick);
+    </script>
+  </body>
+</html>
